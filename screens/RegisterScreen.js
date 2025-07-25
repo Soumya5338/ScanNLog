@@ -5,10 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 export default function RegisterScreen({ navigation }) {
   const [company, setCompany] = useState('');
@@ -16,11 +13,12 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleNext = () => {
-    if (company && email && password) {
-      navigation.navigate('ManagerSelection');
-    } else {
+    if (!company || !email || !password) {
       alert('Please fill all fields');
+      return;
     }
+
+    navigation.navigate('ManagerSelection');
   };
 
   return (
@@ -56,71 +54,53 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
-
-      <Text style={styles.footerText}>
-        Already have an account?{' '}
-        <Text style={styles.loginLink} onPress={() => navigation.navigate('Login')}>
-          Login
-        </Text>
-      </Text>
     </View>
   );
 }
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff', // white background
-      justifyContent: 'center',
-      paddingHorizontal: 24,
-    },
-    header: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: '#1c1c1e',
-      textAlign: 'center',
-      marginBottom: 40,
-    },
-    form: {
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      paddingVertical: 24,
-      paddingHorizontal: 20,
-      shadowColor: '#000',
-      shadowOpacity: 0.05,
-      shadowOffset: { width: 0, height: 2 },
-      shadowRadius: 10,
-      elevation: 2,
-    },
-    input: {
-      backgroundColor: '#f5f5f5',
-      paddingVertical: 14,
-      paddingHorizontal: 16,
-      borderRadius: 10,
-      fontSize: 16,
-      marginBottom: 16,
-    },
-    button: {
-      backgroundColor: '#1c3a63',
-      paddingVertical: 14,
-      borderRadius: 10,
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    buttonText: {
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-    footerText: {
-      textAlign: 'center',
-      marginTop: 24,
-      fontSize: 14,
-      color: '#444',
-    },
-    loginLink: {
-      color: '#1c3a63',
-      fontWeight: '600',
-    },
-  });
-  
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1c1c1e',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  form: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  input: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: '#1c3a63',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});

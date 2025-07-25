@@ -15,21 +15,25 @@ export default function FormBuilderScreen({ route }) {
   const { formName, columnStructure } = route.params;
 
   const [tableData, setTableData] = useState(
-    columnStructure.map(colCount => Array(colCount).fill(''))
+    columnStructure.map(row => ({
+      title: row.title,
+      columns: Array(row.columns).fill(''),
+    }))
   );
+
   const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
   const [modalVisible, setModalVisible] = useState(false);
   const [manualInput, setManualInput] = useState('');
 
   const handleCellPress = (rowIdx, colIdx) => {
     setSelectedCell({ row: rowIdx, col: colIdx });
-    setManualInput(tableData[rowIdx][colIdx]);
+    setManualInput(tableData[rowIdx].columns[colIdx]);
     setModalVisible(true);
   };
 
   const handleInput = value => {
     const newData = [...tableData];
-    newData[selectedCell.row][selectedCell.col] = value;
+    newData[selectedCell.row].columns[selectedCell.col] = value;
     setTableData(newData);
     setModalVisible(false);
   };
@@ -38,10 +42,11 @@ export default function FormBuilderScreen({ route }) {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{formName}</Text>
 
-      <View style={styles.table}>
-        {tableData.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((cell, colIndex) => (
+      {tableData.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.section}>
+          <Text style={styles.rowTitle}>{row.title}</Text>
+          <View style={styles.row}>
+            {row.columns.map((cell, colIndex) => (
               <TouchableOpacity
                 key={colIndex}
                 style={styles.cell}
@@ -50,59 +55,58 @@ export default function FormBuilderScreen({ route }) {
               </TouchableOpacity>
             ))}
           </View>
-        ))}
-      </View>
+        </View>
+      ))}
 
+      {/* Modal */}
       <Modal
-  visible={modalVisible}
-  animationType="slide"
-  transparent
-  onRequestClose={() => setModalVisible(false)}>
-  <View style={styles.modalContainer}>
-    <View style={styles.modalBox}>
-      <Text style={styles.modalTitle}>Choose Input Method</Text>
+        visible={modalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Choose Input Method</Text>
 
-      <View style={styles.iconRow}>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Ionicons name="camera" size={30} color="#1c3a63" />
-          <Text>Camera</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Ionicons name="mic" size={30} color="#1c3a63" />
-          <Text>Voice</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.iconRow}>
+              <TouchableOpacity style={styles.iconBtn}>
+                <Ionicons name="camera" size={30} color="#1c3a63" />
+                <Text>Camera</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconBtn}>
+                <Ionicons name="mic" size={30} color="#1c3a63" />
+                <Text>Voice</Text>
+              </TouchableOpacity>
+            </View>
 
-      <TextInput
-        style={styles.inputField}
-        placeholder="Enter value manually"
-        value={manualInput}
-        onChangeText={setManualInput}
-      />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter value manually"
+              value={manualInput}
+              onChangeText={setManualInput}
+            />
 
-      <View style={styles.modalButtons}>
-        <Pressable
-          style={[styles.button, styles.saveBtn]}
-          onPress={() => handleInput(manualInput)}>
-          <Text style={styles.btnText}>Save</Text>
-        </Pressable>
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.button, styles.saveBtn]}
+                onPress={() => handleInput(manualInput)}>
+                <Text style={styles.btnText}>Save</Text>
+              </Pressable>
 
-        <Pressable
-          style={[styles.button, styles.cancelBtn]}
-          onPress={() => {
-            // Clear the selected cell value
-            const updatedData = [...tableData];
-            updatedData[selectedCell.row][selectedCell.col] = '';
-            setTableData(updatedData);
-            setModalVisible(false);
-          }}>
-          <Text style={styles.btnText}>Cancel</Text>
-        </Pressable>
-      </View>
-    </View>
-  </View>
-</Modal>
-
+              <Pressable
+                style={[styles.button, styles.cancelBtn]}
+                onPress={() => {
+                  const updatedData = [...tableData];
+                  updatedData[selectedCell.row].columns[selectedCell.col] = '';
+                  setTableData(updatedData);
+                  setModalVisible(false);
+                }}>
+                <Text style={styles.btnText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -118,10 +122,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#1c3a63',
   },
-  table: {
-    borderWidth: 1,
-    borderColor: '#1c3a63',
+  section: {
+    marginBottom: 25,
+  },
+  rowTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#1c3a63',
   },
   row: {
     flexDirection: 'row',
@@ -134,9 +144,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 50,
+    marginRight: 6,
+    borderRadius: 6,
+    backgroundColor: '#fff',
   },
   cellText: {
     fontSize: 14,
+    color: '#333',
   },
   modalContainer: {
     flex: 1,
@@ -155,6 +169,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
+    color: '#1c3a63',
   },
   iconRow: {
     flexDirection: 'row',
@@ -170,6 +185,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
     borderRadius: 8,
+    backgroundColor: '#f2f2f2',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -193,7 +209,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-  
-
-  

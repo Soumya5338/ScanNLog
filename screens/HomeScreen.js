@@ -4,7 +4,7 @@ import {
   Text,
   Animated,
   StyleSheet,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 
 export default function HomeScreen({ navigation }) {
@@ -18,9 +18,9 @@ export default function HomeScreen({ navigation }) {
       useNativeDriver: true,
     }).start();
 
-    // Navigate after 3.5 seconds
+    // Navigate to RoleSelection after 3.5 seconds
     const timeout = setTimeout(() => {
-      navigation.replace('Register');
+      navigation.replace('LoginScreen'); // 👈 updated from "Login" to "RoleSelection"
     }, 3500);
 
     return () => clearTimeout(timeout);
@@ -38,6 +38,7 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
+
 const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -60,10 +61,3 @@ const styles = StyleSheet.create({
     height: 240,
   },
 });
-
-
-  
-  
-  
-
-  

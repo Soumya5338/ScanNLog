@@ -1,3 +1,4 @@
+// screens/Form2SetupScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -11,21 +12,24 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Form2SetupScreen({ navigation }) {
-  const [rows, setRows] = useState([{ columns: '' }]);
+  const [rows, setRows] = useState([{ title: '', columns: '' }]);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const addRow = () => {
-    setRows([...rows, { columns: '' }]);
+    setRows([...rows, { title: '', columns: '' }]);
   };
 
-  const handleColumnChange = (index, value) => {
+  const handleChange = (index, key, value) => {
     const updatedRows = [...rows];
-    updatedRows[index].columns = value;
+    updatedRows[index][key] = value;
     setRows(updatedRows);
   };
 
   const generateForm = () => {
-    const columnStructure = rows.map(row => parseInt(row.columns) || 0);
+    const columnStructure = rows.map(row => ({
+      title: row.title,
+      columns: parseInt(row.columns) || 0,
+    }));
     navigation.navigate('FormBuilder', {
       formName: 'Form 2',
       columnStructure,
@@ -34,6 +38,7 @@ export default function Form2SetupScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.title}>Setup for Form 2</Text>
         <Pressable onPress={() => setShowTooltip(!showTooltip)}>
@@ -41,6 +46,7 @@ export default function Form2SetupScreen({ navigation }) {
         </Pressable>
       </View>
 
+      {/* Tooltip */}
       {showTooltip && (
         <View style={styles.tooltipContainer}>
           <View style={styles.tooltip}>
@@ -54,28 +60,37 @@ export default function Form2SetupScreen({ navigation }) {
         </View>
       )}
 
+      {/* Row Inputs */}
       <FlatList
         data={rows}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item, index }) => (
-          <View style={styles.row}>
-            <Text style={styles.label}>Row {index + 1}</Text>
+          <View style={styles.rowInputContainer}>
+            <View style={styles.rowLabelContainer}>
+              <Text style={styles.rowLabel}>Row {index + 1}</Text>
+            </View>
             <TextInput
-              style={styles.input}
-              keyboardType="numeric"
+              style={styles.textInput}
+              placeholder="Row title"
+              value={item.title}
+              onChangeText={(text) => handleChange(index, 'title', text)}
+            />
+            <TextInput
+              style={styles.textInput}
               placeholder="No. of columns"
+              keyboardType="numeric"
               value={item.columns}
-              onChangeText={text => handleColumnChange(index, text)}
+              onChangeText={(text) => handleChange(index, 'columns', text)}
             />
           </View>
         )}
       />
 
+      {/* Buttons */}
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.addButton} onPress={addRow}>
           <Text style={styles.buttonText}>+ Add Row</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.createButton} onPress={generateForm}>
           <Text style={styles.buttonText}>Create Form</Text>
         </TouchableOpacity>
@@ -94,17 +109,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#1c3a63',
-    marginBottom: 20,
   },
   tooltipContainer: {
     alignItems: 'flex-start',
     marginBottom: 10,
-    marginTop: -10,
   },
   tooltip: {
     backgroundColor: '#fffbea',
@@ -150,26 +164,28 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginTop: -1,
   },
-  row: {
+  rowInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 10,
+    marginBottom: 14,
+    gap: 10,
   },
-  label: {
-    fontSize: 16,
+  rowLabelContainer: {
     width: 70,
-    color: '#1c3a63',
-    fontWeight: '600',
   },
-  input: {
+  rowLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1c3a63',
+  },
+  textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    backgroundColor: '#fff',
     borderRadius: 10,
+    borderColor: '#ccc',
+    borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: '#fff',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -198,7 +214,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-
-
-

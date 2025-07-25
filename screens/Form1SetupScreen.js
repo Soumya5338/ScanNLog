@@ -6,26 +6,28 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Form1SetupScreen({ navigation }) {
-  const [rows, setRows] = useState([{ columns: '' }]);
+  const [rows, setRows] = useState([{ title: '', columns: '' }]);
   const [showInfo, setShowInfo] = useState(false);
 
   const addRow = () => {
-    setRows([...rows, { columns: '' }]);
+    setRows([...rows, { title: '', columns: '' }]);
   };
 
-  const handleColumnChange = (index, value) => {
+  const handleChange = (index, key, value) => {
     const updatedRows = [...rows];
-    updatedRows[index].columns = value;
+    updatedRows[index][key] = value;
     setRows(updatedRows);
   };
 
   const generateForm = () => {
-    const columnStructure = rows.map(row => parseInt(row.columns) || 0);
+    const columnStructure = rows.map(row => ({
+      title: row.title,
+      columns: parseInt(row.columns) || 0,
+    }));
     navigation.navigate('FormBuilder', {
       formName: 'Form 1',
       columnStructure,
@@ -34,7 +36,7 @@ export default function Form1SetupScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Header with Info */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Setup for Form 1</Text>
         <TouchableOpacity onPress={() => setShowInfo(!showInfo)}>
@@ -47,7 +49,9 @@ export default function Form1SetupScreen({ navigation }) {
         <View style={styles.tooltipContainer}>
           <View style={styles.tooltipArrow} />
           <View style={styles.tooltipBox}>
-            <Text style={styles.tooltipTitle}>📝 Form 1 – <Text style={{ fontWeight: 'bold' }}>Part Number Accountability</Text></Text>
+            <Text style={styles.tooltipTitle}>
+              📝 Form 1 – <Text style={{ fontWeight: 'bold' }}>Part Number Accountability</Text>
+            </Text>
             <Text style={styles.tooltipText}>
               Identifies the part being inspected and its associated assemblies or subassemblies.
             </Text>
@@ -58,19 +62,25 @@ export default function Form1SetupScreen({ navigation }) {
         </View>
       )}
 
-      {/* FlatList Input Section */}
+      {/* Row Inputs */}
       <FlatList
         data={rows}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item, index }) => (
-          <View style={styles.row}>
-            <Text style={styles.label}>Row {index + 1}</Text>
+          <View style={styles.rowLine}>
+            <Text style={styles.rowLabel}>Row {index + 1}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Row title"
+              value={item.title}
+              onChangeText={text => handleChange(index, 'title', text)}
+            />
             <TextInput
               style={styles.input}
               keyboardType="numeric"
               placeholder="No. of columns"
               value={item.columns}
-              onChangeText={text => handleColumnChange(index, text)}
+              onChangeText={text => handleChange(index, 'columns', text)}
             />
           </View>
         )}
@@ -81,7 +91,6 @@ export default function Form1SetupScreen({ navigation }) {
         <TouchableOpacity style={styles.addButton} onPress={addRow}>
           <Text style={styles.buttonText}>+ Add Row</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.createButton} onPress={generateForm}>
           <Text style={styles.buttonText}>Create Form</Text>
         </TouchableOpacity>
@@ -99,9 +108,9 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: 12,
   },
   title: {
     fontSize: 22,
@@ -118,10 +127,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
   },
   tooltipArrow: {
     position: 'absolute',
@@ -155,26 +160,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#1c3a63',
   },
-  row: {
+  rowLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 10,
+    marginBottom: 15,
   },
-  label: {
+  rowLabel: {
+    fontWeight: 'bold',
     fontSize: 16,
-    width: 70,
     color: '#1c3a63',
-    fontWeight: '600',
+    marginRight: 10,
+    width: 55,
   },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
     backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginHorizontal: 5,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -203,6 +209,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-
-

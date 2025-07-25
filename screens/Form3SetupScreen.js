@@ -11,21 +11,24 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Form3SetupScreen({ navigation }) {
-  const [rows, setRows] = useState([{ columns: '' }]);
-  const [showInfo, setShowInfo] = useState(false);
+  const [rows, setRows] = useState([{ title: '', columns: '' }]);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const addRow = () => {
-    setRows([...rows, { columns: '' }]);
+    setRows([...rows, { title: '', columns: '' }]);
   };
 
-  const handleColumnChange = (index, value) => {
+  const handleInputChange = (index, field, value) => {
     const updatedRows = [...rows];
-    updatedRows[index].columns = value;
+    updatedRows[index][field] = value;
     setRows(updatedRows);
   };
 
   const generateForm = () => {
-    const columnStructure = rows.map(row => parseInt(row.columns) || 0);
+    const columnStructure = rows.map(row => ({
+      title: row.title || `Row ${rows.indexOf(row) + 1}`,
+      columns: parseInt(row.columns) || 0,
+    }));
     navigation.navigate('FormBuilder', {
       formName: 'Form 3',
       columnStructure,
@@ -34,23 +37,23 @@ export default function Form3SetupScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleRow}>
+      <View style={styles.headerRow}>
         <Text style={styles.title}>Setup for Form 3</Text>
-        <Pressable onPress={() => setShowInfo(!showInfo)}>
+        <Pressable onPress={() => setShowTooltip(!showTooltip)}>
           <Ionicons name="information-circle-outline" size={26} color="#1c3a63" />
         </Pressable>
       </View>
 
-      {showInfo && (
-        <View style={styles.infoBoxWrapper}>
-          <View style={styles.pointer} />
-          <View style={styles.infoBox}>
-            <Text style={styles.infoTitle}>📏 Form 3 – Characteristic Accountability</Text>
-            <Text style={styles.infoDescription}>
+      {showTooltip && (
+        <View style={styles.tooltipContainer}>
+          <View style={styles.tooltip}>
+            <Text style={styles.tooltipTitle}>📏 Form 3 – Characteristic Accountability</Text>
+            <Text style={styles.tooltipText}>
               Documents actual measured values for each design characteristic on the drawing.
             </Text>
-            <Text style={styles.question}>📐 “Does the part meet all drawing specs?”</Text>
+            <Text style={styles.tooltipNote}>📐 “Does the part meet all drawing specs?”</Text>
           </View>
+          <View style={styles.tooltipPointer} />
         </View>
       )}
 
@@ -59,13 +62,19 @@ export default function Form3SetupScreen({ navigation }) {
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.row}>
-            <Text style={styles.label}>Row {index + 1}</Text>
+            <Text style={styles.label}>{`Row ${index + 1}`}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Row title"
+              value={item.title}
+              onChangeText={text => handleInputChange(index, 'title', text)}
+            />
             <TextInput
               style={styles.input}
               keyboardType="numeric"
               placeholder="No. of columns"
               value={item.columns}
-              onChangeText={text => handleColumnChange(index, text)}
+              onChangeText={text => handleInputChange(index, 'columns', text)}
             />
           </View>
         )}
@@ -90,78 +99,75 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f6fc',
     padding: 20,
   },
-  titleRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#1c3a63',
-  },
-  infoBoxWrapper: {
-    position: 'relative',
     marginBottom: 20,
-    marginTop: 4,
-    marginHorizontal: 5,
   },
-  pointer: {
-    position: 'absolute',
-    top: 0,
-    left: 20,
+  tooltipContainer: {
+    alignItems: 'flex-start',
+    marginBottom: 10,
+    marginTop: -10,
+  },
+  tooltip: {
+    backgroundColor: '#fffbea',
+    borderColor: '#f4d700',
+    borderWidth: 1.5,
+    borderRadius: 8,
+    padding: 12,
+    maxWidth: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  tooltipTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 4,
+    color: '#1c3a63',
+  },
+  tooltipText: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: '#333',
+  },
+  tooltipNote: {
+    fontStyle: 'italic',
+    color: '#555',
+    fontSize: 13,
+  },
+  tooltipPointer: {
     width: 0,
     height: 0,
     borderLeftWidth: 10,
     borderRightWidth: 10,
-    borderBottomWidth: 10,
+    borderBottomWidth: 12,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#fff8dc',
-    zIndex: 1,
-    transform: [{ translateY: -10 }],
-  },
-  infoBox: {
-    backgroundColor: '#fff8dc',
-    borderLeftWidth: 2,
-    borderRightWidth: 2,
-    borderBottomWidth: 2,
-    borderTopWidth: 2,
-    borderColor: '#ffd700',
-    borderRadius: 10,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  infoTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#1c3a63',
-    marginBottom: 6,
-  },
-  infoDescription: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 6,
-  },
-  question: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#444',
+    borderBottomColor: '#f4d700',
+    transform: [{ rotate: '180deg' }],
+    marginLeft: 15,
+    marginTop: -1,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
   },
   label: {
-    fontSize: 16,
-    width: 70,
+    fontSize: 15,
+    width: 65,
     color: '#1c3a63',
     fontWeight: '600',
   },
@@ -172,6 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    marginLeft: 5,
     backgroundColor: '#fff',
   },
   buttonRow: {
@@ -201,5 +208,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-

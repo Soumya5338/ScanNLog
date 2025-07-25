@@ -5,155 +5,117 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  Alert,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState(null); // 'employee' or 'manager'
 
   const handleLogin = () => {
+    if (!role) {
+      alert('Please select login type (Employee or Manager)');
+      return;
+    }
+
     if (email && password) {
-      navigation.navigate('FormSelector'); // You can replace with your next screen
+      navigation.navigate('FormSelector');
     } else {
       alert('Please enter email and password');
     }
   };
 
+  const handleForgotPassword = () => {
+    if (!role) {
+      alert('Please select login type first.');
+    } else if (role === 'employee') {
+      Alert.alert('Contact your manager to reset your password.');
+    } else {
+      Alert.prompt('Reset Password', 'Enter your registered email:', (inputEmail) => {
+        if (inputEmail) {
+          Alert.alert('Reset link sent to:', inputEmail);
+        }
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Welcome back! Glad to see you, Again!</Text>
+      <Text style={styles.header}>Welcome back!</Text>
 
-      <View style={styles.form}>
-        <TextInput
-          placeholder="Enter your email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          placeholderTextColor="#888"
-          keyboardType="email-address"
-        />
-        <TextInput
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-          style={styles.input}
-          secureTextEntry
-          placeholderTextColor="#888"
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+      <View style={styles.roleSelector}>
+        <TouchableOpacity
+          style={[styles.roleButton, role === 'employee' && styles.selected]}
+          onPress={() => setRole('employee')}
+        >
+          <Text style={styles.roleText}>Employee</Text>
         </TouchableOpacity>
-
-        <Text style={styles.or}>Or login with</Text>
-
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialText}>G</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialText}>f</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialText}>🍎</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={[styles.roleButton, role === 'manager' && styles.selected]}
+          onPress={() => setRole('manager')}
+        >
+          <Text style={styles.roleText}>Manager</Text>
+        </TouchableOpacity>
       </View>
+
+      <TextInput
+        placeholder="Enter your email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        placeholderTextColor="#888"
+        keyboardType="email-address"
+      />
+      <TextInput
+        placeholder="Enter your password"
+        value={password}
+        onChangeText={setPassword}
+        style={styles.input}
+        secureTextEntry
+        placeholderTextColor="#888"
+      />
+
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.forgotText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
 
       <Text style={styles.footerText}>
         Don’t have an account?{' '}
-        <Text
-          style={styles.registerLink}
-          onPress={() => navigation.navigate('Register')}
-        >
+        <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
           Register Now
         </Text>
       </Text>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      justifyContent: 'center',
-      paddingHorizontal: 24,
-    },
-    header: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: '#1c1c1e',
-      textAlign: 'center',
-      marginBottom: 40,
-    },
-    form: {
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      paddingVertical: 24,
-      paddingHorizontal: 20,
-      shadowColor: '#000',
-      shadowOpacity: 0.05,
-      shadowOffset: { width: 0, height: 2 },
-      shadowRadius: 10,
-      elevation: 2,
-    },
-    input: {
-      backgroundColor: '#f5f5f5',
-      paddingVertical: 14,
-      paddingHorizontal: 16,
-      borderRadius: 10,
-      fontSize: 16,
-      marginBottom: 16,
-    },
-    button: {
-      backgroundColor: '#1c3a63',
-      paddingVertical: 14,
-      borderRadius: 10,
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    buttonText: {
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 16,
-    },
-    or: {
-      textAlign: 'center',
-      marginTop: 16,
-      fontSize: 14,
-      color: '#888',
-    },
-    socialRow: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      marginTop: 12,
-    },
-    socialBtn: {
-      width: 40,
-      height: 40,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 10,
-      marginHorizontal: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    socialText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#333',
-    },
-    footerText: {
-      textAlign: 'center',
-      marginTop: 24,
-      fontSize: 14,
-      color: '#444',
-    },
-    registerLink: {
-      color: '#1c3a63',
-      fontWeight: '600',
-    },
-  });
-  
+  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, backgroundColor: '#fff' },
+  header: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 30 },
+  input: { backgroundColor: '#f5f5f5', padding: 14, borderRadius: 10, fontSize: 16, marginBottom: 14 },
+  button: { backgroundColor: '#1c3a63', padding: 14, borderRadius: 10, alignItems: 'center', marginTop: 10 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  footerText: { textAlign: 'center', marginTop: 20, fontSize: 14, color: '#444' },
+  registerLink: { color: '#1c3a63', fontWeight: '600' },
+  forgotText: { color: '#1c3a63', textAlign: 'right', marginBottom: 12 },
+  roleSelector: { flexDirection: 'row', justifyContent: 'center', marginBottom: 20 },
+  roleButton: {
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginHorizontal: 8,
+    paddingHorizontal: 16,
+  },
+  selected: {
+    backgroundColor: '#1c3a63',
+  },
+  roleText: {
+    color: '#1c1c1e',
+  },
+});
